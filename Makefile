@@ -3,16 +3,35 @@
 # By Joel Savitz <jsavitz@redhat.com>
 
 CC 	= gcc
+
 CFLAGS  = -g -Wall -Werror -std=gnu11
+LFLAGS  = -fPIC -shared
+OFLAGS  = -O3
+
 OBJECTS = tovasort.o
 BIN	= tovasort_demo
+LIB     = tovasort.so
 
-all: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $(BIN)
+OBJDIR = obj
+SRCDIR = src
+
+all: $(OBJDIR) $(OBJECTS)
+	$(CC) $(CFLAGS) $(patsubst %.o,$(OBJDIR)/%.o, $(OBJECTS)) -o $(BIN)
+
+optimized: $(OBJDIR) $(OBJECTS)
+	$(CC) $(OFLAGS) $(CFLAGS) $(patsubst %.o,$(OBJDIR)/%.o, $(OBJECTS)) -o $(BIN)
+
+shared: $(OBJDIR) $(OBJECTS)
+	$(CC) $(CFLAGS) $(patsubst %.o,$(OBJDIR)/%.o, $(OBJECTS)) -o $(LIB)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $^ -o  $@
 
-.PHONEY: clean
+%.o: $(SRCDIR)/%.c
+	$(CC) $(LFLAGS) $(CFLAGS) -c $^ -o $(OBJDIR)/$@
+
+.PHONEY: clean $(OBJDIR)
+$(OBJDIR):
+	mkdir $(OBJDIR)
 clean:
-	rm -rf $(BIN) $(OBJECTS)
+	rm -rf $(BIN) $(LIB) $(OBJDIR)
