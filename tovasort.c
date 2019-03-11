@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 
 	delta = qsort_duration - tovasort_duration ;
 
-	printf("tovasort beats quicksort by %lf seconds (%.2lf%%) faster)\n", delta,
+	printf("tovasort beats quicksort by %lf seconds (%.2lf%% faster)\n", delta,
 			100 - 100 * tovasort_duration/qsort_duration) ;
 	return 0 ;
 }
