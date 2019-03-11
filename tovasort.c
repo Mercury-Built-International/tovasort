@@ -1,7 +1,19 @@
 /*
-	Author: Elena Izotova
-	Start Date: 11 April 2018
-	Purpose: To show the differences between TovaSort and QuickSort
+    An indisputable demonstration of the superiority of TovaSort over qsort
+    Copyright (C) 2019 Elena Izotova
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <stdio.h>
@@ -18,7 +30,7 @@ int a_count = 0; //assignment count
 int c_count = 0; //comparison count
 int r_count = 0; //recursive call count
 
-double run_test(void(*sorting_algorithm)(int*,int,int), int thickness) ;
+double run_test(void(*sorting_algorithm)(int*,int,int), unsigned thickness) ;
 
 int main(int argc, char* argv[])
 {
@@ -34,11 +46,12 @@ int main(int argc, char* argv[])
 
 	delta = qsort_duration - tovasort_duration ;
 
-	printf("tovasort beats quicksort by %lf seconds\n", delta) ;
+	printf("tovasort beats quicksort by %lf seconds (%.2lf%%) faster)\n", delta,
+			100 - 100 * tovasort_duration/qsort_duration) ;
 	return 0 ;
 }
 
-double run_test(void(*sorting_algorithm)(int*,int,int), int thickness){
+double run_test(void(*sorting_algorithm)(int*,int,int), unsigned thickness){
 
 	int* numbers;
 	int i; //iterator
