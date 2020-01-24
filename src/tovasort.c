@@ -1,7 +1,19 @@
 /*
-	Author: Elena Izotova
-	Start Date: 11 April 2018
-	Purpose: To show the differences between TovaSort and QuickSort
+    An indisputable demonstration of the superiority of TovaSort over qsort
+    Copyright (C) 2019 Elena Izotova
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <stdio.h>
@@ -18,19 +30,37 @@ int a_count = 0; //assignment count
 int c_count = 0; //comparison count
 int r_count = 0; //recursive call count
 
+double run_test(void(*sorting_algorithm)(int*,int,int), unsigned thickness) ;
+
 int main(int argc, char* argv[])
 {
+	double tovasort_duration, qsort_duration, delta ;
+	unsigned test_thickness_value = 10 ;
+
+	printf("Unequivocal and objective demonstration of the efficiency of tovasort over qsort() from <stdlib.h> on ten random integer sets\n") ;
+
+	printf("qsort():\n") ;
+	qsort_duration = run_test(vanilla_QS,test_thickness_value) ;
+	printf("tovasort:\n") ;
+	tovasort_duration = run_test(tova_sort,test_thickness_value) ;
+
+	delta = qsort_duration - tovasort_duration ;
+
+	printf("tovasort beats quicksort by %lf seconds (%.2lf%% faster)\n", delta,
+			100 - 100 * tovasort_duration/qsort_duration) ;
+	return 0 ;
+}
+
+double run_test(void(*sorting_algorithm)(int*,int,int), unsigned thickness){
+
 	int* numbers;
 	int i; //iterator
 	clock_t begin, end;
 	double time_spent;
-
-	printf("Number of elements: %d\n", SIZE);
-	//printf("Vanilla Tova Sort:\n");
-	printf("Tova Sort:\n");
-	//printf("Vanilla Quick Sort:\n");
 	numbers = malloc(sizeof(int)*SIZE);
-	while (1)
+	double slice_total = 0 ;
+
+	for(unsigned slice = 0; slice < thickness; ++slice)
 	{
 		for (i = 0; i < SIZE; i++)
 		{
@@ -40,9 +70,7 @@ int main(int argc, char* argv[])
 		printf("****\n");
 
 		begin = clock();
-		//vanilla_tova_sort(numbers, 0, SIZE - 1);
-		tova_sort(numbers, 0, SIZE - 1);
-		//vanilla_QS(numbers, 0, SIZE - 1);
+		sorting_algorithm(numbers, 0, SIZE - 1);
 		end = clock();
 
 		//tests that the array is in sorted order (smallest to largest)
@@ -51,60 +79,28 @@ int main(int argc, char* argv[])
 			if (numbers[i] > numbers[i + 1])
 			{
 				printf("BAM %d %d %d\n", i, numbers[i], numbers[i + 1]);
-				getch();
+				getchar();
 			}
 		}
-		printf("Done\n");
-		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-		printf("Time Spent = %.3f seconds\n", time_spent);
+		//printf("Done\n");
+		slice_total += time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+		//printf("Time Spent = %.3f seconds\n", time_spent);
 
-		//printf("r_count = %d\n", r_count); r_count = 0;
-		//printf("a_count = %d\n", a_count); a_count = 0;
-		//printf("c_count = %d\n", c_count); c_count = 0;
+
 	}
-	return 0;
+	printf("Average sorting time of %d random sets of integers: %lf\n",
+		thickness, slice_total/thickness) ;
+
+	return slice_total/thickness ;
 }
+
+
+int int_compare(const void * p1, const void * p2) {
+	return *(int*)p1 > *(int*)p2 ;
+}
+
 void vanilla_QS(int number[], int first, int last) {
-	int i, j, pivot, temp, mid;
-
-	if (first<last) {
-		//Median of Three modification
-		mid = (first + last) / 2;
-		if (number[last] < number[first]) {
-			temp = number[first];
-			number[first] = number[last];
-			number[last] = temp;
-		}
-		if (number[mid] < number[first]) {
-			temp = number[first];
-			number[first] = number[mid];
-			number[mid] = temp;
-		}
-		if (number[last] < number[mid]) {
-			temp = number[mid];
-			number[mid] = number[last];
-			number[last] = temp;
-		}
-
-		pivot = first;
-		i = first; //left sweeping index
-		j = last; //right sweeping index
-
-		while (i<j) {
-			while (number[i] <= number[pivot] && i < last) { i++; }
-			while (number[j] > number[pivot]) { j--; }
-			if (i<j) {
-				temp = number[i];
-				number[i] = number[j];
-				number[j] = temp;
-			}
-		}
-		temp = number[pivot];
-		number[pivot] = number[j];
-		number[j] = temp;
-		vanilla_QS(number, first, j - 1);
-		vanilla_QS(number, j + 1, last);
-	}
+	qsort(number,last + 1,sizeof(int),int_compare);
 }
 
 //similar to vanilla TS but modified to make less swaps with duplicate values
@@ -133,6 +129,7 @@ void tova_sort(int list[], int start, int end) {
 	if (start < right) { tova_sort(list, start, right); }
 	if (end > left) { tova_sort(list, left, end); }
 }
+
 void vanilla_tova_sort(int list[], int start, int end) {
 	if ((end - start) < 1)return;
 
@@ -155,7 +152,6 @@ void vanilla_tova_sort(int list[], int start, int end) {
 	if (start < right) { vanilla_tova_sort(list, start, right); }
 	if (end > left) { vanilla_tova_sort(list, left, end); }
 }
-
 
 void print_array(int* arr, int size) {
 	int i;
